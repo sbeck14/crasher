@@ -6,3 +6,4 @@ Simple docker image that exits after a wait period.
 
 - SLEEP_TIME - How long to sleep (see `man sleep`) (default 10s)
 - EXIT_CODE - What code to exit with (default 1)
+- 
