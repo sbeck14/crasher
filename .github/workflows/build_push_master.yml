@@ -1,6 +1,13 @@
 name: ci
 
-on: push
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    types: [opened, synchronize, reopened]
 
 jobs:
   docker:
@@ -10,20 +17,22 @@ jobs:
         name: Prepare
         id: prep
         run: |
-          BRANCH=${GITHUB_REF#refs/heads/}
+          # Prep Docker tags
+          
+          # Set branch to head ref if triggered by PR
+          # Otherwise set to the branch in the github ref
+          BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          
           DOCKER_IMAGE=sbeck14/crasher
-          VERSION=latest
           SHORTREF=${GITHUB_SHA::8}
           
-          echo $BRANCH
-          
-          # Add latest and release-# tag on push to master
+          # Add latest and release-# tag on push to master only
           if [[ "$BRANCH" = "master" ]]; then
-            TAGS="${DOCKER_IMAGE}:latest,${DOCKER_IMAGE}:release-${GITHUB_RUN_NUMBER}"
+            TAGS="${DOCKER_IMAGE}:latest,${DOCKER_IMAGE}:release-${GITHUB_RUN_NUMBER},"
           fi
           
-          # Add branch-# and shortref tags on push to any branch
-          TAGS="$TAGS,${DOCKER_IMAGE}:$BRANCH-${GITHUB_RUN_NUMBER},${DOCKER_IMAGE}:${SHORTREF}"
+          # Add branch-# and shortref tags
+          TAGS="$TAGS${DOCKER_IMAGE}:$BRANCH-${GITHUB_RUN_NUMBER},${DOCKER_IMAGE}:${SHORTREF}"
           
           # Set output parameters.
           echo ::set-output name=tags::${TAGS}
