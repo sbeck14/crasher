@@ -17,11 +17,7 @@ jobs:
         name: Prepare
         id: prep
         run: |
-          if [ -z "$GITHUB_HEAD_REF" ]; then
-            BRANCH=${GITHUB_REF#refs/heads/}
-          else
-            BRANCH=${GITHUB_HEAD_REF}
-          fi
+          BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           
           DOCKER_IMAGE=sbeck14/crasher
           VERSION=latest
